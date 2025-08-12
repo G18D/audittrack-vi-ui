@@ -3,6 +3,7 @@
 import React, { useMemo, useState } from "react";
 import { Upload, FileCheck2, ShieldCheck, Settings, ScanSearch, DatabaseZap, History, Download, Trash2, Play, Pause, ChevronRight, CheckCircle2, AlertTriangle, CircleHelp, Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
+const MDiv: any = motion.div;
 
 /**
  * AuditTrack VI — Single-file React UI
@@ -354,7 +355,7 @@ export default function AuditTrackVIApp() {
 
         <div className="flex-1 p-2 sm:p-4">
           {route === "dashboard" && (
-            <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25 }} className="flex flex-col gap-4">
+            <<div className="flex flex-col gap-4">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {stats.map((s) => (
                   <Stat key={s.label} label={s.label} value={s.value} hint={s.hint} />
