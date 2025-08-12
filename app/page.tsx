@@ -426,7 +426,7 @@ function ReviewQueue() {
         </Card>
       </div>
       <div className="lg:col-span-1">
-        <Card title="Auto-Fixes" icon=<ShieldCheck size={16} />} accent="mango">
+        <Card title="Auto-Fixes" icon={<ShieldCheck size={16} />} accent="mango">
           <div className="text-sm text-slate-700">
             Common corrections your agent can apply automatically:
           </div>
@@ -590,7 +590,7 @@ export default function AuditTrackVIApp() {
               </div>
               <Card
                 title="Recent Files"
-                icon=<FileCheck2 size={16} />}
+                icon={<FileCheck2 size={16} />}
                 accent="sea"
                 actions={<ActionButton icon={<Download size={16} />} label="Download Report" tone="sea" />}
               >
