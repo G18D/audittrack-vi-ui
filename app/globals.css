@@ -2,7 +2,17 @@
 @tailwind components;
 @tailwind utilities;
 
-html, body {
+html,
+body {
   height: 100%;
-  background: white;
+  /* Remove hardcoded white background to use page.tsx gradient */
+  /* Add global typography and spacing enhancements */
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  line-height: 1.5;
+  color: #0f172a; /* Matches slate-900 for consistency */
+  margin: 0;
+  padding: 0;
 }

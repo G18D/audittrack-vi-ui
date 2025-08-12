@@ -57,12 +57,14 @@ const Stat = ({
   label,
   value,
   hint,
+  className = "",
 }: {
   label: string;
   value: string | number;
   hint?: string;
+  className?: string;
 }) => (
-  <div className="rounded-2xl p-4 shadow-sm bg-white/70 border border-white/60">
+  <div className={`rounded-2xl p-6 shadow-sm bg-white/70 border border-white/60 ${className}`}>
     <div className="text-sm text-slate-600">{label}</div>
     <div className="text-2xl font-bold text-slate-900 mt-1">{value}</div>
     {hint && <div className="text-xs text-slate-500 mt-1">{hint}</div>}
@@ -82,7 +84,7 @@ const Card = ({
   children: React.ReactNode;
   accent?: keyof typeof palette;
 }) => (
-  <div className="rounded-2xl bg-white shadow-sm border border-white/70 overflow-hidden">
+  <div className="rounded-2xl bg-white shadow-md hover:shadow-lg transition border border-white/70 overflow-hidden">
     <div
       className="flex items-center justify-between px-4 py-3"
       style={{ background: `${palette[accent]}18` }}
@@ -94,11 +96,11 @@ const Card = ({
         >
           {icon}
         </div>
-        <h3 className="font-semibold text-slate-900">{title}</h3>
+        <h3 className="font-semibold text-slate-900 text-lg">{title}</h3>
       </div>
       <div className="flex items-center gap-2">{actions}</div>
     </div>
-    <div className="p-4">{children}</div>
+    <div className="p-4 sm:p-6">{children}</div>
   </div>
 );
 
@@ -175,9 +177,11 @@ const ActionButton = ({
 function Sidebar({
   current,
   onNavigate,
+  className = "",
 }: {
   current: string;
   onNavigate: (key: string) => void;
+  className?: string;
 }) {
   const items = [
     { key: "dashboard", label: "Dashboard", icon: <ShieldCheck size={18} /> },
@@ -188,7 +192,7 @@ function Sidebar({
   ];
 
   return (
-    <aside className="h-full w-[280px] shrink-0 p-4">
+    <aside className={`h-full w-[280px] shrink-0 p-4 ${className}`}>
       <div
         className="rounded-2xl h-full p-4 flex flex-col gap-2 border shadow-sm"
         style={{
@@ -283,39 +287,31 @@ function UploadZone() {
       <div
         onDragOver={(e) => e.preventDefault()}
         onDrop={onDrop}
-        className="rounded-2xl border-2 border-dashed p-8 text-center bg-white/70"
+        className="rounded-2xl border-2 border-dashed p-8 text-center bg-white/80 hover:bg-white transition-shadow shadow-md hover:shadow-lg"
         style={{ borderColor: `${palette.reef}55` }}
       >
-        <div className="flex items-center justify-center gap-3">
-          <Upload />
-          <div className="font-semibold">
-            Drag & drop receipts, invoices, payroll, contracts
-          </div>
+        <div className="flex flex-col items-center justify-center gap-3">
+          <Upload size={20} />
+          <div className="font-semibold text-lg sm:text-xl">Drag & drop receipts, invoices, payroll, contracts</div>
         </div>
         <div className="text-xs text-slate-500 mt-2">PDF, CSV, XLSX, DOCX</div>
-        <div className="mt-4 flex items-center justify-center gap-2">
+        <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-4">
           <label
-            className="inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold cursor-pointer border shadow-sm hover:shadow-md"
-            style={{
-              color: palette.sea,
-              borderColor: `${palette.sea}33`,
-              background: "white",
-            }}
+            className="inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold cursor-pointer border shadow-md hover:shadow-xl transition"
+            style={{ color: palette.sea, borderColor: `${palette.sea}33`, background: "white" }}
           >
             <Upload size={16} /> Choose Files
             <input type="file" className="hidden" multiple onChange={onPick} />
           </label>
           <ActionButton
-            icon={
-              busy ? <Loader2 className="animate-spin" size={16} /> : <Play size={16} />
-            }
+            icon={busy ? <Loader2 className="animate-spin" size={16} /> : <Play size={16} />}
             label={busy ? "Queuing..." : "Queue for Audit"}
             onClick={simulate}
             tone="reef"
           />
         </div>
         {!!files.length && (
-          <div className="mt-4 text-xs text-slate-600">
+          <div className="mt-4 text-sm text-slate-600">
             {files.length} file{files.length > 1 ? "s" : ""} selected
           </div>
         )}
@@ -369,7 +365,7 @@ function FilesTable() {
 function RulesIngest() {
   const [pct, setPct] = useState(32);
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
       <div className="lg:col-span-2">
         <Card
           title="Ingest Laws & Policies"
@@ -418,7 +414,7 @@ function RulesIngest() {
 
 function ReviewQueue() {
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
       <div className="lg:col-span-2">
         <Card
           title="Queue"
@@ -430,7 +426,7 @@ function ReviewQueue() {
         </Card>
       </div>
       <div className="lg:col-span-1">
-        <Card title="Auto-Fixes" icon={<ShieldCheck size={16} />} accent="mango">
+        <Card title="Auto-Fixes" icon=<ShieldCheck size={16} />} accent="mango">
           <div className="text-sm text-slate-700">
             Common corrections your agent can apply automatically:
           </div>
@@ -451,7 +447,7 @@ function ReviewQueue() {
 
 function SettingsPanel() {
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
       <Card title="Integrations" icon={<Settings size={16} />} accent="sea">
         <div className="grid grid-cols-2 gap-3 text-sm">
           <label className="flex flex-col gap-1">
@@ -552,18 +548,18 @@ export default function AuditTrackVIApp() {
       </header>
 
       {/* Main */}
-      <main className="max-w-7xl mx-auto px-2 sm:px-4 py-4 flex">
-        <Sidebar current={route} onNavigate={setRoute} />
+      <main className="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 py-6 flex flex-col lg:flex-row gap-6">
+        <Sidebar current={route} onNavigate={setRoute} className="lg:w-[280px] w-full" />
 
         <div className="flex-1 p-2 sm:p-4">
           {route === "dashboard" && (
-            <div className="flex flex-col gap-4">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="flex flex-col gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {stats.map((s) => (
-                  <Stat key={s.label} label={s.label} value={s.value} hint={s.hint} />
+                  <Stat key={s.label} label={s.label} value={s.value} hint={s.hint} className="p-6" />
                 ))}
               </div>
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div className="lg:col-span-2">
                   <Card
                     title="Upload for Audit"
@@ -594,7 +590,7 @@ export default function AuditTrackVIApp() {
               </div>
               <Card
                 title="Recent Files"
-                icon={<FileCheck2 size={16} />}
+                icon=<FileCheck2 size={16} />}
                 accent="sea"
                 actions={<ActionButton icon={<Download size={16} />} label="Download Report" tone="sea" />}
               >
@@ -606,7 +602,7 @@ export default function AuditTrackVIApp() {
           {route === "ingest" && <RulesIngest />}
           {route === "review" && <ReviewQueue />}
           {route === "history" && (
-            <div className="grid grid-cols-1 gap-4">
+            <div className="grid grid-cols-1 gap-6">
               <Card title="History" icon={<History size={16} />} accent="sea">
                 <div className="text-sm text-slate-700">
                   Your last 30 days of audits will appear here with filters by vendor, status, and rule
@@ -620,8 +616,8 @@ export default function AuditTrackVIApp() {
       </main>
 
       {/* Footer */}
-      <footer className="max-w-7xl mx-auto px-4 py-6 text-xs text-slate-600">
-        <div className="flex flex-wrap items-center gap-2 justify-between">
+      <footer className="max-w-7xl mx-auto px-4 py-6 text-sm text-slate-600 border-t" style={{ borderColor: `${palette.sea}12` }}>
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
           <div>© {new Date().getFullYear()} AuditTrack VI · Built for transparency across the Virgin Islands.</div>
           <div>
             Theme: <span className="font-semibold" style={{ color: palette.coral }}>Coral</span> + Reef + Lagoon + Sand
