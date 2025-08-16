@@ -35,8 +35,8 @@ const Badge = ({
   );
 };
 
-// Define status configuration with proper typing
-const statusConfig: Record<'Passed' | 'Flagged' | 'Manual Review', { tone: BadgeTone; icon: React.ComponentType<{ size?: number }> }> = {
+// Define status configuration with proper typing - Fixed to accept Lucide icon props
+const statusConfig: Record<'Passed' | 'Flagged' | 'Manual Review', { tone: BadgeTone; icon: React.ComponentType<any> }> = {
   "Passed": { tone: "reef", icon: CheckCircle2 },
   "Flagged": { tone: "coral", icon: AlertTriangle },
   "Manual Review": { tone: "mango", icon: CircleHelp }
