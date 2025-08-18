@@ -1,38 +1,18 @@
+# Ultra-minimal requirements for Vercel deployment
 fastapi==0.104.1
 python-multipart==0.0.6
 uvicorn==0.24.0
-
-# --- OCR / CV (HUGE; keep commented for Vercel) ---
-# opencv-python-headless==4.8.1.78
-# numpy==1.26.4
-# pdf2image==1.16.3
-# pytesseract==0.3.10
-
-# --- OpenAI / LangChain / Pinecone (aligned & slim) ---
-openai>=1.68.2,<2.0.0
-# langchain==0.3.7          # comment: pulls test/dev extras
-langchain-core==0.3.74
-langchain-openai==0.3.11
-langchain-pinecone==0.2.11
-pinecone==7.3.0
-
-# --- Core libs used in prod ---
-fpdf2==2.7.6
-PyPDF2==3.0.1
 python-dotenv==1.0.0
-pydantic==2.8.2
-requests==2.32.4
-httpx==0.28.1
-tiktoken==0.11.0
-typing_extensions==4.14.1
+pydantic==2.5.0
 
-# --- Dev/test-only (keep commented in prod) ---
-# pytest==8.4.1
-# pytest-asyncio==0.26.0
-# pytest-benchmark==5.1.0
-# pytest-codspeed==4.0.0
-# pytest-recording==0.13.4
-# pytest-socket==0.7.0
-# syrupy==4.9.1
-# vcrpy==7.0.0
-# langchain-tests==0.3.20
+# Core API only - absolute minimum for basic functionality
+#fastapi==0.104.1
+#python-multipart==0.0.6
+#uvicorn==0.24.0
+#openai>=1.68.2,<2.0.0
+#python-dotenv==1.0.0
+#pydantic==2.8.2
+# Only add these if you actually use them in your main.py
+# langchain-core==0.3.74
+# langchain-openai==0.3.11
+# requests==2.32.4
