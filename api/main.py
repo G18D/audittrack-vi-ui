@@ -101,29 +101,69 @@ async def root():
     return {"message": "AuditTrack VI API is running", "version": "1.0.0"}
 
 @app.get("/api/documents")
-async def get_documents():
-    """Get all documents"""
-    return {"documents": mock_documents}
+async def get_documents(limit: int = 50, offset: int = 0):
+    """Get documents with pagination - matches frontend expectations"""
+    total = len(mock_documents)
+    start = offset
+    end = min(offset + limit, total)
+    documents = mock_documents[start:end]
+    
+    # Convert string IDs to numbers for frontend compatibility
+    for doc in documents:
+        doc["id"] = int(doc["id"])
+    
+    pages = (total + limit - 1) // limit  # Ceiling division
+    current_page = (offset // limit) + 1
+    
+    return {
+        "documents": documents,
+        "total": total,
+        "page": current_page,
+        "pages": pages
+    }
 
 @app.get("/api/compliance")
 async def get_compliance():
-    """Get compliance status"""
-    return {"compliance": mock_compliance}
+    """Get compliance analysis - matches frontend ComplianceAnalysis interface"""
+    return {
+        "overall_score": 91,
+        "breakdown": {
+            "irs_compliance": 94,
+            "usvi_dol_compliance": 87,
+            "gasb_compliance": 91
+        },
+        "recent_issues": [
+            {"type": "Missing Documentation", "count": 2, "severity": "Medium"},
+            {"type": "Date Discrepancy", "count": 1, "severity": "Low"},
+            {"type": "Amount Mismatch", "count": 3, "severity": "High"}
+        ],
+        "recommendations": [
+            {"action": "Review vendor documentation", "impact": "Reduce processing time by 15%"},
+            {"action": "Implement automated date validation", "impact": "Eliminate 80% of date errors"},
+            {"action": "Add amount cross-checking", "impact": "Improve accuracy by 25%"}
+        ]
+    }
 
 @app.get("/api/stats")
 async def get_stats():
-    """Get dashboard statistics"""
+    """Get dashboard statistics - matches frontend Stats interface"""
     total = len(mock_documents)
     passed = len([d for d in mock_documents if d["status"] == "Passed"])
     flagged = len([d for d in mock_documents if d["status"] == "Flagged"])
-    manual_review = len([d for d in mock_documents if d["status"] == "Manual Review"])
+    
+    # Calculate percentages and mock values to match frontend expectations
+    issues_resolved_percent = (passed / total * 100) if total > 0 else 0
     
     return {
-        "stats": {
-            "totalDocuments": total,
-            "passedDocuments": passed,
-            "flaggedDocuments": flagged,
-            "manualReviewDocuments": manual_review
+        "documents_processed": total,
+        "issues_resolved_percent": round(issues_resolved_percent, 1),
+        "avg_processing_time": 2.3,  # Mock value in minutes
+        "total_savings": 45230.50,   # Mock value in dollars
+        "compliance_scores": {
+            "irs": 94,
+            "usvi_dol": 87,
+            "gasb": 91,
+            "overall": 91
         }
     }
 
@@ -189,6 +229,10 @@ async def delete_document(document_id: str):
 # Health check endpoint
 @app.get("/health")
 async def health_check():
+    return {"status": "healthy", "timestamp": datetime.now().isoformat()}
+
+@app.get("/api/health")
+async def api_health_check():
     return {"status": "healthy", "timestamp": datetime.now().isoformat()}
 
 # For Vercel deployment
