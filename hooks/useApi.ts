@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
-import { apiService, type DocumentFile, type DashboardStats } from '@/lib/api';
+import { apiClient, type Document, type Stats } from '@/lib/api';
 
 export function useDocuments() {
-  const [documents, setDocuments] = useState<DocumentFile[]>([]);
+  const [documents, setDocuments] = useState<Document[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -10,7 +10,8 @@ export function useDocuments() {
     try {
       setLoading(true);
       setError(null);
-      const data = await apiService.getDocuments();
+      const response = await apiClient.getDocuments();
+      const data = response.documents;
       setDocuments(data);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to fetch documents');
@@ -26,7 +27,7 @@ export function useDocuments() {
   const uploadDocuments = async (files: File[]) => {
     try {
       setError(null);
-      const response = await apiService.uploadDocuments(files);
+      const response = await apiClient.uploadDocuments(files);
       if (response.success) {
         await fetchDocuments(); // Refresh documents list
       }
@@ -41,7 +42,8 @@ export function useDocuments() {
   const deleteDocument = async (id: number) => {
     try {
       setError(null);
-      await apiService.deleteDocument(id);
+      // Note: deleteDocument method needs to be added to apiClient
+      throw new Error('Delete functionality not yet implemented in new API');
       await fetchDocuments(); // Refresh documents list
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Delete failed';
@@ -61,7 +63,7 @@ export function useDocuments() {
 }
 
 export function useDashboardStats() {
-  const [stats, setStats] = useState<DashboardStats | null>(null);
+  const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -70,7 +72,7 @@ export function useDashboardStats() {
       try {
         setLoading(true);
         setError(null);
-        const data = await apiService.getDashboardStats();
+        const data = await apiClient.getStats();
         setStats(data);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to fetch stats');
@@ -86,7 +88,7 @@ export function useDashboardStats() {
 }
 
 export function useSearch(query: string) {
-  const [results, setResults] = useState<DocumentFile[]>([]);
+  const [results, setResults] = useState<Document[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -100,8 +102,9 @@ export function useSearch(query: string) {
       try {
         setLoading(true);
         setError(null);
-        const data = await apiService.searchDocuments(query);
-        setResults(data);
+        // Note: search functionality not yet implemented in new API
+        // throw new Error('Search functionality not yet implemented');
+        setResults([]);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Search failed');
       } finally {
@@ -126,7 +129,12 @@ export function useComplianceScore() {
       try {
         setLoading(true);
         setError(null);
-        const data = await apiService.getComplianceScore();
+        const response = await apiClient.getComplianceAnalysis();
+        const data = {
+          overall: response.overall_score,
+          irs: response.breakdown.irs_compliance,
+          usviDol: response.breakdown.usvi_dol_compliance
+        };
         setScore(data);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to fetch compliance score');
@@ -142,7 +150,7 @@ export function useComplianceScore() {
 }
 
 export function useReviewQueue() {
-  const [queue, setQueue] = useState<DocumentFile[]>([]);
+  const [queue, setQueue] = useState<Document[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -150,8 +158,9 @@ export function useReviewQueue() {
     try {
       setLoading(true);
       setError(null);
-      const data = await apiService.getReviewQueue();
-      setQueue(data);
+      // Note: review queue functionality not yet implemented in new API
+      // throw new Error('Review queue functionality not yet implemented');
+      setQueue([]);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to fetch review queue');
     } finally {
@@ -166,7 +175,8 @@ export function useReviewQueue() {
   const approveDocument = async (id: number) => {
     try {
       setError(null);
-      await apiService.approveDocument(id);
+      // Note: approve functionality not yet implemented in new API
+      throw new Error('Approve functionality not yet implemented');
       await fetchQueue(); // Refresh queue
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Approval failed';
@@ -178,7 +188,8 @@ export function useReviewQueue() {
   const flagDocument = async (id: number, reason: string) => {
     try {
       setError(null);
-      await apiService.flagDocument(id, reason);
+      // Note: flag functionality not yet implemented in new API
+      throw new Error('Flag functionality not yet implemented');
       await fetchQueue(); // Refresh queue
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Flag failed';
