@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useState, useCallback } from "react";
+import React, { useState, useMemo, useCallback } from "react";
 import {
   Upload,
   FileCheck2,
@@ -11,23 +11,26 @@ import {
   History,
   Download,
   Trash2,
-  Play,
-  Pause,
   ChevronRight,
   CheckCircle2,
   AlertTriangle,
-  CircleHelp,
-  Loader2,
   Search,
-  FileText,
   Filter,
   Menu,
   X,
   TrendingUp,
+  CircleHelp,
   Clock,
-  Users,
+  Loader2,
+  Play,
+  FileText,
   DollarSign,
+  Users,
+  Pause,
 } from "lucide-react";
+
+import { useDocuments, useDashboardStats, useComplianceScore } from "@/hooks/useApi";
+import type { DocumentFile } from "@/lib/api";
 
 /**
  * AuditTrack VI — Enhanced Caribbean-themed audit management system
@@ -183,49 +186,6 @@ const Card = ({
   );
 };
 
-// Sample data with more realistic content
-const filesDemo = [
-  {
-    id: 1,
-    name: "Invoice_Q2_2025_001247.pdf",
-    size: "2.4 MB",
-    status: "Passed" as const,
-    issues: 0,
-    vendor: "Caribbean Supply Co.",
-    uploadedAt: "2 hours ago",
-    amount: "$15,240.00"
-  },
-  {
-    id: 2,
-    name: "Payroll_July_2025.xlsx", 
-    size: "156 KB",
-    status: "Flagged" as const,
-    issues: 3,
-    vendor: "HR Department",
-    uploadedAt: "4 hours ago",
-    amount: "$89,750.00"
-  },
-  {
-    id: 3,
-    name: "Contract_Maintenance_UVI.pdf",
-    size: "3.8 MB", 
-    status: "Manual Review" as const,
-    issues: 1,
-    vendor: "Island Facilities LLC",
-    uploadedAt: "1 day ago",
-    amount: "$45,500.00"
-  },
-  {
-    id: 4,
-    name: "Receipt_Office_Supplies.pdf",
-    size: "890 KB",
-    status: "Passed" as const, 
-    issues: 0,
-    vendor: "Office Depot VI",
-    uploadedAt: "2 days ago",
-    amount: "$1,847.32"
-  }
-] as const;
 
 const statusConfig = {
   "Passed": { tone: "reef" as const, icon: CheckCircle2 },
@@ -445,11 +405,14 @@ function Sidebar({
   );
 }
 
-// Enhanced Upload Zone
-function UploadZone() {
+// Enhanced Upload Zone with API integration
+function UploadZone({ onUploadComplete }: { onUploadComplete?: () => void }) {
   const [busy, setBusy] = useState(false);
   const [files, setFiles] = useState<File[]>([]);
   const [dragOver, setDragOver] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  
+  const { uploadDocuments } = useDocuments();
 
   const onDrop = useCallback((e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -473,12 +436,21 @@ function UploadZone() {
     setFiles((f) => [...f, ...picked]);
   }, []);
 
-  const simulate = async () => {
-    setBusy(true);
-    await new Promise((r) => setTimeout(r, 2000));
-    setBusy(false);
-    setFiles([]);
-    alert("Files successfully queued for audit processing!");
+  const handleUpload = async () => {
+    if (files.length === 0) return;
+    
+    try {
+      setBusy(true);
+      setError(null);
+      const response = await uploadDocuments(files);
+      setFiles([]);
+      onUploadComplete?.();
+      alert(response.message || "Files successfully uploaded for processing!");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Upload failed");
+    } finally {
+      setBusy(false);
+    }
   };
 
   const clearFiles = () => setFiles([]);
@@ -533,8 +505,8 @@ function UploadZone() {
             <>
               <ActionButton
                 icon={busy ? <Loader2 className="animate-spin" size={16} /> : <Play size={16} />}
-                label={busy ? "Processing..." : `Process ${files.length} Files`}
-                onClick={simulate}
+                label={busy ? "Uploading..." : `Upload ${files.length} Files`}
+                onClick={handleUpload}
                 variant="solid"
                 tone="reef"
                 disabled={busy}
@@ -549,6 +521,14 @@ function UploadZone() {
             </>
           )}
         </div>
+        
+        {error && (
+          <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+            <div className="text-sm text-red-800">
+              <strong>Error:</strong> {error}
+            </div>
+          </div>
+        )}
 
         {files.length > 0 && (
           <div className="mt-6 p-4 bg-slate-50 rounded-xl">
@@ -578,15 +558,37 @@ function UploadZone() {
   );
 }
 
-// Enhanced Files Table
+// Enhanced Files Table with API integration
 function FilesTable({ searchTerm = "" }: { searchTerm?: string }) {
+  const { documents, loading, error } = useDocuments();
+  
   const filteredFiles = useMemo(() => {
-    if (!searchTerm) return filesDemo;
-    return filesDemo.filter(file => 
+    if (!documents) return [];
+    if (!searchTerm) return documents;
+    return documents.filter(file => 
       file.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       file.vendor.toLowerCase().includes(searchTerm.toLowerCase())
     );
-  }, [searchTerm]);
+  }, [documents, searchTerm]);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <Loader2 className="animate-spin" size={32} />
+        <span className="ml-2 text-slate-600">Loading documents...</span>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="text-center py-12">
+        <AlertTriangle size={48} className="mx-auto mb-4 text-red-500 opacity-50" />
+        <div className="font-medium text-red-600">Failed to load documents</div>
+        <div className="text-sm text-red-500">{error}</div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">
@@ -661,45 +663,81 @@ function FilesTable({ searchTerm = "" }: { searchTerm?: string }) {
   );
 }
 
-// Main App Component
+// Main App Component with API integration
 export default function AuditTrackVIApp() {
   const [route, setRoute] = useState("dashboard");
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  
+  const { documents, refetch: refetchDocuments } = useDocuments();
+  const { stats: dashboardStats, loading: statsLoading } = useDashboardStats();
+  const { score: complianceScore } = useComplianceScore();
 
-  const stats = useMemo(
-    () => [
+  const stats = useMemo(() => {
+    if (statsLoading || !dashboardStats) {
+      return [
+        { 
+          label: "Documents Processed", 
+          value: "...", 
+          hint: "Loading...", 
+          icon: <FileCheck2 size={20} />,
+          trend: "neutral" as const
+        },
+        { 
+          label: "Issues Resolved", 
+          value: "...", 
+          hint: "Loading...", 
+          icon: <CheckCircle2 size={20} />,
+          trend: "neutral" as const
+        },
+        { 
+          label: "Avg Processing Time", 
+          value: "...", 
+          hint: "Loading...", 
+          icon: <Clock size={20} />,
+          trend: "neutral" as const
+        },
+        { 
+          label: "Total Savings", 
+          value: "...", 
+          hint: "Loading...", 
+          icon: <DollarSign size={20} />,
+          trend: "neutral" as const
+        },
+      ];
+    }
+
+    return [
       { 
         label: "Documents Processed", 
-        value: "1,247", 
-        hint: "+47 today", 
+        value: dashboardStats.documentsProcessed.value, 
+        hint: dashboardStats.documentsProcessed.hint, 
         icon: <FileCheck2 size={20} />,
-        trend: "up" as const
+        trend: dashboardStats.documentsProcessed.trend
       },
       { 
         label: "Issues Resolved", 
-        value: "89%", 
-        hint: "Above target", 
+        value: dashboardStats.issuesResolved.value, 
+        hint: dashboardStats.issuesResolved.hint, 
         icon: <CheckCircle2 size={20} />,
-        trend: "up" as const
+        trend: dashboardStats.issuesResolved.trend
       },
       { 
         label: "Avg Processing Time", 
-        value: "2.3min", 
-        hint: "-18% vs last month", 
+        value: dashboardStats.avgProcessingTime.value, 
+        hint: dashboardStats.avgProcessingTime.hint, 
         icon: <Clock size={20} />,
-        trend: "down" as const
+        trend: dashboardStats.avgProcessingTime.trend
       },
       { 
         label: "Total Savings", 
-        value: "$89.2K", 
-        hint: "YTD efficiency gains", 
+        value: dashboardStats.totalSavings.value, 
+        hint: dashboardStats.totalSavings.hint, 
         icon: <DollarSign size={20} />,
-        trend: "up" as const
+        trend: dashboardStats.totalSavings.trend
       },
-    ],
-    []
-  );
+    ];
+  }, [dashboardStats, statsLoading]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-teal-50 to-amber-50">
@@ -798,22 +836,26 @@ export default function AuditTrackVIApp() {
                       />
                     }
                   >
-                    <UploadZone />
+                    <UploadZone onUploadComplete={refetchDocuments} />
                   </Card>
                 </div>
                 
                 <div className="space-y-6">
                   <Card title="Compliance Score" icon={<ShieldCheck size={20} />} accent="mango">
                     <div className="space-y-4">
-                      <ProgressPill value={87} label="Overall Compliance" />
+                      <ProgressPill value={complianceScore?.overall || 0} label="Overall Compliance" />
                       <div className="grid grid-cols-2 gap-4 text-sm">
                         <div>
                           <div className="text-slate-600">IRS Compliance</div>
-                          <div className="font-semibold text-slate-900">94%</div>
+                          <div className="font-semibold text-slate-900">
+                            {complianceScore?.irs ? `${complianceScore.irs}%` : '...'}
+                          </div>
                         </div>
                         <div>
                           <div className="text-slate-600">USVI DOL</div>
-                          <div className="font-semibold text-slate-900">82%</div>
+                          <div className="font-semibold text-slate-900">
+                            {complianceScore?.usviDol ? `${complianceScore.usviDol}%` : '...'}
+                          </div>
                         </div>
                       </div>
                       <ActionButton 

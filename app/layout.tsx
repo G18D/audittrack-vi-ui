@@ -107,19 +107,6 @@ export default function RootLayout({
         <meta name="theme-color" content="#00B6A0" />
         <meta name="msapplication-TileColor" content="#00B6A0" />
         
-        {/* Prevent zoom on form inputs on iOS */}
-        <style>{`
-          @media screen and (-webkit-min-device-pixel-ratio: 0) {
-            select, textarea, input[type="text"], input[type="password"], 
-            input[type="datetime"], input[type="datetime-local"], 
-            input[type="date"], input[type="month"], input[type="time"], 
-            input[type="week"], input[type="number"], input[type="email"], 
-            input[type="url"], input[type="search"], input[type="tel"], 
-            input[type="color"] {
-              font-size: 16px;
-            }
-          }
-        `}</style>
       </head>
       <body className="h-full antialiased">
         {/* Skip to main content for accessibility */}
