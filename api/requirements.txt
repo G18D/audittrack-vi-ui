@@ -1,0 +1,18 @@
+# Ultra-minimal requirements for Vercel deployment
+fastapi==0.104.1
+python-multipart==0.0.6
+uvicorn==0.24.0
+python-dotenv==1.0.0
+pydantic==2.5.0
+
+# Core API only - absolute minimum for basic functionality
+#fastapi==0.104.1
+#python-multipart==0.0.6
+#uvicorn==0.24.0
+#openai>=1.68.2,<2.0.0
+#python-dotenv==1.0.0
+#pydantic==2.8.2
+# Only add these if you actually use them in your main.py
+# langchain-core==0.3.74
+# langchain-openai==0.3.11
+# requests==2.32.4

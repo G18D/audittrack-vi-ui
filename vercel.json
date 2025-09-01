@@ -1,0 +1,7 @@
+{
+  "functions": {
+    "app/**": {
+      "excludeFiles": "node_modules/**/*.{md,map,d.ts}"
+    }
+  }
+}
