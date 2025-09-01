@@ -12,9 +12,13 @@ app = FastAPI(title="AuditTrack VI API", version="1.0.0")
 # Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # In production, replace with your frontend domain
+    allow_origins=[
+        "https://audittrack-vi-3fqgr81yi-godfrey-mclennons-projects.vercel.app",
+        "http://localhost:3000",  # For local development
+        "http://localhost:8000",  # For local API testing
+    ],
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE"],
     allow_headers=["*"],
 )
 

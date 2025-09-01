@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AuditTrack VI Deployment Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .status { padding: 10px; margin: 10px 0; border-radius: 5px; }
+        .success { background: #d4edda; border: 1px solid #c3e6cb; color: #155724; }
+        .error { background: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; }
+        .warning { background: #fff3cd; border: 1px solid #ffeaa7; color: #856404; }
+        button { background: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 5px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>🚀 AuditTrack VI Deployment Test</h1>
+    
+    <div id="results"></div>
+    
+    <h2>Quick Tests</h2>
+    <button onclick="testAPI()">Test API Connection</button>
+    <button onclick="testFrontend()">Test Frontend</button>
+    <button onclick="runAllTests()">Run All Tests</button>
+    
+    <h2>Test Results</h2>
+    <div id="testResults"></div>
+    
+    <script>
+        const API_URL = 'https://audittrack-vi-3fqgr81yi-godfrey-mclennons-projects.vercel.app';
+        
+        function addResult(message, type = 'success') {
+            const div = document.createElement('div');
+            div.className = `status ${type}`;
+            div.innerHTML = message;
+            document.getElementById('testResults').appendChild(div);
+        }
+        
+        async function testFrontend() {
+            addResult('🔍 Testing Frontend Accessibility...', 'warning');
+            
+            try {
+                const response = await fetch(API_URL);
+                if (response.ok) {
+                    addResult('✅ Frontend is accessible and loading', 'success');
+                    addResult(`Status: ${response.status} ${response.statusText}`, 'success');
+                } else {
+                    addResult(`❌ Frontend returned status: ${response.status}`, 'error');
+                }
+            } catch (error) {
+                addResult(`❌ Frontend test failed: ${error.message}`, 'error');
+            }
+        }
+        
+        async function testAPI() {
+            addResult('🔍 Testing API Configuration...', 'warning');
+            
+            // Check if API URL is configured
+            const configCheck = `
+                <h3>Current Configuration:</h3>
+                <pre>Frontend URL: ${API_URL}
+Backend URL: Will be determined by NEXT_PUBLIC_API_URL environment variable
+Default Fallback: http://localhost:8000</pre>`;
+            
+            addResult(configCheck, 'warning');
+            
+            // Test common API endpoints that your app expects
+            const endpoints = ['/api/health', '/api/stats', '/api/documents'];
+            
+            for (const endpoint of endpoints) {
+                try {
+                    // Note: This will likely fail until backend is deployed
+                    const apiResponse = await fetch(API_URL + endpoint);
+                    if (apiResponse.ok) {
+                        addResult(`✅ ${endpoint} - Working`, 'success');
+                    } else {
+                        addResult(`⚠️ ${endpoint} - Status: ${apiResponse.status}`, 'warning');
+                    }
+                } catch (error) {
+                    addResult(`❌ ${endpoint} - Not accessible: ${error.message}`, 'error');
+                }
+            }
+        }
+        
+        async function runAllTests() {
+            document.getElementById('testResults').innerHTML = '';
+            addResult('🚀 Starting comprehensive deployment test...', 'warning');
+            
+            await testFrontend();
+            await testAPI();
+            
+            addResult(`
+                <h3>📋 Summary & Next Steps:</h3>
+                <ul>
+                    <li><strong>Frontend:</strong> Should be accessible at your Vercel URL</li>
+                    <li><strong>Backend:</strong> Needs to be deployed and NEXT_PUBLIC_API_URL configured</li>
+                    <li><strong>Environment:</strong> Set NEXT_PUBLIC_API_URL in Vercel settings</li>
+                    <li><strong>CORS:</strong> Backend must allow requests from your Vercel domain</li>
+                </ul>
+            `, 'warning');
+        }
+        
+        // Auto-run tests when page loads
+        window.onload = () => {
+            addResult('📝 Deployment test tool loaded. Click buttons above to run tests.', 'success');
+        };
+    </script>
+</body>
+</html>
